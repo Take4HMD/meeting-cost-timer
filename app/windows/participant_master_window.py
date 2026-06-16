@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import QMessageBox, QTableWidgetItem
 
 from app.models.participant import Participant
@@ -29,11 +30,12 @@ class ParticipantMasterWindow(UiWindow):
             participant_master_service or ParticipantMasterService()
         )
         self.participants: list[Participant] = []
+        self._saved_table_snapshot: tuple[tuple[str, ...], ...] = ()
 
         self.addRowButton.clicked.connect(self.add_row)
         self.deleteRowButton.clicked.connect(self.delete_selected_rows)
         self.saveButton.clicked.connect(self.save_participants)
-        self.closeButton.clicked.connect(self.close)
+        self.closeButton.clicked.connect(self.request_close)
         self.apply_device_role()
         self.load_participants()
 
@@ -63,9 +65,11 @@ class ParticipantMasterWindow(UiWindow):
             )
             if self.participantTable.rowCount() == 0:
                 self.add_empty_row()
+            self._saved_table_snapshot = self._table_snapshot()
         except Exception:
             self._show_error("参加者マスタ", "参加者マスタの読込に失敗しました。")
             self.set_participants([])
+            self._saved_table_snapshot = self._table_snapshot()
 
     def set_participants(self, participants: list[Participant]) -> None:
         self.participants = participants
@@ -123,7 +127,18 @@ class ParticipantMasterWindow(UiWindow):
             return
 
         self.participants = participants
+        self._saved_table_snapshot = self._table_snapshot()
         self._show_info("参加者マスタ", "保存しました。")
+
+    def request_close(self) -> None:
+        self.close()
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        if self._can_close_with_unsaved_changes_check():
+            event.accept()
+            return
+
+        event.ignore()
 
     def collect_participants(self) -> list[Participant]:
         participants = []
@@ -178,6 +193,52 @@ class ParticipantMasterWindow(UiWindow):
             if all(not self._cell_text(row, column) for column in range(1, 7)):
                 return row
         return None
+
+    def _can_close_with_unsaved_changes_check(self) -> bool:
+        changed_cell = self._first_changed_cell()
+        if changed_cell is None:
+            return True
+
+        if self._confirm_discard_changes():
+            return True
+
+        self._focus_participant_cell(*changed_cell)
+        return False
+
+    def _first_changed_cell(self) -> tuple[int, int] | None:
+        saved_snapshot = self._saved_table_snapshot
+        current_snapshot = self._table_snapshot()
+        max_rows = max(len(saved_snapshot), len(current_snapshot))
+
+        for row in range(max_rows):
+            saved_row = saved_snapshot[row] if row < len(saved_snapshot) else ()
+            current_row = current_snapshot[row] if row < len(current_snapshot) else ()
+            max_columns = max(len(saved_row), len(current_row))
+            for column in range(max_columns):
+                saved_value = saved_row[column] if column < len(saved_row) else ""
+                current_value = current_row[column] if column < len(current_row) else ""
+                if saved_value != current_value:
+                    return (
+                        min(row, max(self.participantTable.rowCount() - 1, 0)),
+                        min(column, max(self.participantTable.columnCount() - 1, 0)),
+                    )
+        return None
+
+    def _table_snapshot(self) -> tuple[tuple[str, ...], ...]:
+        return tuple(
+            tuple(self._cell_text(row, column) for column in range(7))
+            for row in range(self.participantTable.rowCount())
+        )
+
+    def _confirm_discard_changes(self) -> bool:
+        reply = QMessageBox.question(
+            self,
+            "参加者マスタ",
+            "保存されていない変更があります。保存せずに閉じますか？",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        return reply == QMessageBox.StandardButton.Yes
 
     def _row_participant_id(self, row: int) -> str:
         item = self.participantTable.item(row, 0)
