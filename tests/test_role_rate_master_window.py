@@ -88,15 +88,23 @@ def test_role_rate_master_window_adds_and_deletes_rows(qt_application):
         role_rate_master_service=StubRoleRateMasterService(),
     )
 
-    window.addRowButton.click()
     assert window.roleRateTable.rowCount() == 1
     assert window.roleRateTable.item(0, 0).text() == "有効"
-    assert window.roleRateTable.item(0, 1).text() == ""
+    assert window.roleRateTable.currentRow() == 0
+    assert window.roleRateTable.currentColumn() == 0
 
-    window.roleRateTable.selectRow(0)
+    window.addRowButton.click()
+    assert window.roleRateTable.rowCount() == 2
+    assert window.roleRateTable.item(1, 0).text() == "有効"
+    assert window.roleRateTable.item(1, 1).text() == ""
+    assert window.roleRateTable.currentRow() == 1
+    assert window.roleRateTable.currentColumn() == 0
+    assert window.roleRateTable.currentItem() == window.roleRateTable.item(1, 0)
+
+    window.roleRateTable.selectRow(1)
     window.deleteRowButton.click()
 
-    assert window.roleRateTable.rowCount() == 0
+    assert window.roleRateTable.rowCount() == 1
     window.close()
 
 

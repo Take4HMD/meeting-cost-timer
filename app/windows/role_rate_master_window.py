@@ -45,6 +45,8 @@ class RoleRateMasterWindow(UiWindow):
             self.set_role_rates(
                 self.role_rate_master_service.load_role_rates(license_id)
             )
+            if self.roleRateTable.rowCount() == 0:
+                self.add_empty_row()
         except Exception as exc:
             self._show_error("役職単価マスタ", "役職単価マスタの読込に失敗しました。")
             self.set_role_rates([])
@@ -66,6 +68,7 @@ class RoleRateMasterWindow(UiWindow):
             Qt.ItemDataRole.UserRole,
             self._next_role_rate_id(),
         )
+        self._focus_role_rate_cell(row, 0)
 
     def delete_selected_rows(self) -> None:
         selected_rows = {
@@ -124,6 +127,15 @@ class RoleRateMasterWindow(UiWindow):
 
     def _set_item(self, row: int, column: int, text: str) -> None:
         self.roleRateTable.setItem(row, column, QTableWidgetItem(text))
+
+    def _focus_role_rate_cell(self, row: int, column: int) -> None:
+        item = self.roleRateTable.item(row, column)
+        if item is None:
+            return
+
+        self.roleRateTable.setCurrentCell(row, column)
+        self.roleRateTable.scrollToItem(item)
+        self.roleRateTable.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def _row_role_rate_id(self, row: int) -> str:
         item = self.roleRateTable.item(row, 0)
