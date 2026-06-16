@@ -3,7 +3,7 @@ import os
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtWidgets import QApplication, QTableWidgetItem
+from PyQt6.QtWidgets import QApplication, QMessageBox, QTableWidgetItem
 
 from app.models.role_rate import RoleRate
 from app.windows.role_rate_master_window import RoleRateMasterWindow
@@ -106,6 +106,7 @@ def test_role_rate_master_window_adds_and_deletes_rows(qt_application):
     window.deleteRowButton.click()
 
     assert window.roleRateTable.rowCount() == 1
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.No
     window.close()
 
 
@@ -140,6 +141,8 @@ def test_role_rate_master_window_saves_table_values(qt_application):
     window.roleRateTable.setItem(0, 2, QTableWidgetItem("8000"))
     window.roleRateTable.setItem(0, 3, QTableWidgetItem(""))
     window._show_error = pytest.fail
+    messages = []
+    window._show_info = lambda title, message: messages.append((title, message))
 
     window.saveButton.click()
 
@@ -153,6 +156,7 @@ def test_role_rate_master_window_saves_table_values(qt_application):
             sort_order=None,
         )
     ]
+    assert messages == [("役職単価マスタ", "保存しました。")]
     window.close()
 
 
@@ -170,7 +174,68 @@ def test_role_rate_master_window_shows_error_when_save_validation_fails(qt_appli
 
     assert errors
     assert service.saved_role_rates is None
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.No
     window.close()
+
+
+def test_role_rate_master_window_keeps_window_open_when_close_is_cancelled(
+    qt_application,
+):
+    window = RoleRateMasterWindow(
+        settings={"license_id": "LIC-TEST-001"},
+        role_rate_master_service=StubRoleRateMasterService(
+            loaded_role_rates=[_role_rate()]
+        ),
+    )
+    window.show()
+    window.roleRateTable.item(0, 1).setText("Changed Role")
+    window.roleRateTable.setCurrentCell(0, 2)
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.Cancel
+
+    window.request_close()
+
+    assert window.isVisible()
+    assert window.roleRateTable.currentRow() == 0
+    assert window.roleRateTable.currentColumn() == 1
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.No
+    window.close()
+
+
+def test_role_rate_master_window_closes_when_unsaved_changes_are_saved(
+    qt_application,
+):
+    service = StubRoleRateMasterService(loaded_role_rates=[_role_rate()])
+    window = RoleRateMasterWindow(
+        settings={"license_id": "LIC-TEST-001"},
+        role_rate_master_service=service,
+    )
+    window.show()
+    window.roleRateTable.item(0, 1).setText("Changed Role")
+    window._show_info = lambda title, message: None
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.Yes
+
+    window.request_close()
+
+    assert not window.isVisible()
+    assert service.saved_role_rates[0].role_name == "Changed Role"
+
+
+def test_role_rate_master_window_closes_when_unsaved_changes_are_discarded(
+    qt_application,
+):
+    service = StubRoleRateMasterService(loaded_role_rates=[_role_rate()])
+    window = RoleRateMasterWindow(
+        settings={"license_id": "LIC-TEST-001"},
+        role_rate_master_service=service,
+    )
+    window.show()
+    window.roleRateTable.item(0, 1).setText("Changed Role")
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.No
+
+    window.request_close()
+
+    assert not window.isVisible()
+    assert service.saved_role_rates is None
 
 
 def test_role_rate_master_window_handles_load_error(qt_application):

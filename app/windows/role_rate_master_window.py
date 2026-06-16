@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import QMessageBox, QTableWidgetItem
 
 from app.models.role_rate import RoleRate
@@ -28,11 +29,12 @@ class RoleRateMasterWindow(UiWindow):
             role_rate_master_service or RoleRateMasterService()
         )
         self.role_rates: list[RoleRate] = []
+        self._saved_table_snapshot: tuple[tuple[str, ...], ...] = ()
 
         self.addRowButton.clicked.connect(self.add_row)
         self.deleteRowButton.clicked.connect(self.delete_selected_rows)
         self.saveButton.clicked.connect(self.save_role_rates)
-        self.closeButton.clicked.connect(self.close)
+        self.closeButton.clicked.connect(self.request_close)
         self.load_role_rates()
 
     def load_role_rates(self) -> None:
@@ -47,9 +49,11 @@ class RoleRateMasterWindow(UiWindow):
             )
             if self.roleRateTable.rowCount() == 0:
                 self.add_empty_row()
+            self._saved_table_snapshot = self._table_snapshot()
         except Exception as exc:
             self._show_error("役職単価マスタ", "役職単価マスタの読込に失敗しました。")
             self.set_role_rates([])
+            self._saved_table_snapshot = self._table_snapshot()
 
     def set_role_rates(self, role_rates: list[RoleRate]) -> None:
         self.role_rates = role_rates
@@ -91,7 +95,7 @@ class RoleRateMasterWindow(UiWindow):
         for row in sorted(selected_rows, reverse=True):
             self.roleRateTable.removeRow(row)
 
-    def save_role_rates(self) -> None:
+    def save_role_rates(self) -> bool:
         try:
             role_rates = self.collect_role_rates()
             self.role_rate_master_service.save_role_rates(
@@ -100,9 +104,22 @@ class RoleRateMasterWindow(UiWindow):
             )
         except Exception as exc:
             self._show_error("役職単価マスタ", "役職単価マスタの保存に失敗しました。")
-            return
+            return False
 
         self.role_rates = role_rates
+        self._saved_table_snapshot = self._table_snapshot()
+        self._show_info("役職単価マスタ", "保存しました。")
+        return True
+
+    def request_close(self) -> None:
+        self.close()
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        if self._can_close_with_unsaved_changes_check():
+            event.accept()
+            return
+
+        event.ignore()
 
     def collect_role_rates(self) -> list[RoleRate]:
         role_rates = []
@@ -151,6 +168,58 @@ class RoleRateMasterWindow(UiWindow):
             if all(not self._cell_text(row, column) for column in range(1, 4)):
                 return row
         return None
+
+    def _can_close_with_unsaved_changes_check(self) -> bool:
+        changed_cell = self._first_changed_cell()
+        if changed_cell is None:
+            return True
+
+        reply = self._confirm_save_changes()
+        if reply == QMessageBox.StandardButton.Yes:
+            return self.save_role_rates()
+        if reply == QMessageBox.StandardButton.No:
+            return True
+
+        self._focus_role_rate_cell(*changed_cell)
+        return False
+
+    def _first_changed_cell(self) -> tuple[int, int] | None:
+        saved_snapshot = self._saved_table_snapshot
+        current_snapshot = self._table_snapshot()
+        max_rows = max(len(saved_snapshot), len(current_snapshot))
+
+        for row in range(max_rows):
+            saved_row = saved_snapshot[row] if row < len(saved_snapshot) else ()
+            current_row = current_snapshot[row] if row < len(current_snapshot) else ()
+            max_columns = max(len(saved_row), len(current_row))
+            for column in range(max_columns):
+                saved_value = saved_row[column] if column < len(saved_row) else ""
+                current_value = current_row[column] if column < len(current_row) else ""
+                if saved_value != current_value:
+                    return (
+                        min(row, max(self.roleRateTable.rowCount() - 1, 0)),
+                        min(column, max(self.roleRateTable.columnCount() - 1, 0)),
+                    )
+        return None
+
+    def _table_snapshot(self) -> tuple[tuple[str, ...], ...]:
+        return tuple(
+            tuple(self._cell_text(row, column) for column in range(4))
+            for row in range(self.roleRateTable.rowCount())
+        )
+
+    def _confirm_save_changes(self) -> QMessageBox.StandardButton:
+        return QMessageBox.question(
+            self,
+            "役職単価マスタ",
+            "保存されていない変更があります。保存しますか？",
+            (
+                QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No
+                | QMessageBox.StandardButton.Cancel
+            ),
+            QMessageBox.StandardButton.Yes,
+        )
 
     def _row_role_rate_id(self, row: int) -> str:
         item = self.roleRateTable.item(row, 0)
@@ -213,3 +282,6 @@ class RoleRateMasterWindow(UiWindow):
 
     def _show_error(self, title: str, message: str) -> None:
         QMessageBox.warning(self, title, message)
+
+    def _show_info(self, title: str, message: str) -> None:
+        QMessageBox.information(self, title, message)
