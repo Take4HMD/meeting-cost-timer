@@ -177,6 +177,7 @@ def test_license_settings_window_shows_error_for_invalid_settings(
     window.save_settings()
 
     assert errors
+    assert errors[0][1] == "ライセンスIDを入力してください。"
     assert service.load()["license_id"] == ""
     assert window.licenseStatusLabel.text() == "不正"
     window.close()
