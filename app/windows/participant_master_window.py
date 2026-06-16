@@ -61,6 +61,8 @@ class ParticipantMasterWindow(UiWindow):
             self.set_participants(
                 self.participant_master_service.load_participants(license_id)
             )
+            if self.participantTable.rowCount() == 0:
+                self.add_empty_row()
         except Exception:
             self._show_error("参加者マスタ", "参加者マスタの読込に失敗しました。")
             self.set_participants([])
