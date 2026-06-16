@@ -30,7 +30,7 @@ class ParticipantMasterWindow(UiWindow):
         )
         self.participants: list[Participant] = []
 
-        self.addRowButton.clicked.connect(self.add_empty_row)
+        self.addRowButton.clicked.connect(self.add_row)
         self.deleteRowButton.clicked.connect(self.delete_selected_rows)
         self.saveButton.clicked.connect(self.save_participants)
         self.closeButton.clicked.connect(self.close)
@@ -88,6 +88,15 @@ class ParticipantMasterWindow(UiWindow):
             self._next_participant_id(),
         )
         self._focus_participant_cell(row, 0)
+
+    def add_row(self) -> None:
+        blank_row = self._first_blank_input_row()
+        if blank_row is not None:
+            self._show_error("参加者マスタ", "未入力の行があります。")
+            self._focus_participant_cell(blank_row, 0)
+            return
+
+        self.add_empty_row()
 
     def delete_selected_rows(self) -> None:
         selected_rows = {
@@ -162,6 +171,12 @@ class ParticipantMasterWindow(UiWindow):
         self.participantTable.setCurrentCell(row, column)
         self.participantTable.scrollToItem(item)
         self.participantTable.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def _first_blank_input_row(self) -> int | None:
+        for row in range(self.participantTable.rowCount()):
+            if all(not self._cell_text(row, column) for column in range(1, 7)):
+                return row
+        return None
 
     def _row_participant_id(self, row: int) -> str:
         item = self.participantTable.item(row, 0)

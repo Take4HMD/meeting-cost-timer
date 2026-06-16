@@ -105,6 +105,7 @@ def test_participant_master_window_adds_and_deletes_rows(qt_application):
     assert window.participantTable.currentRow() == 0
     assert window.participantTable.currentColumn() == 0
 
+    window.participantTable.item(0, 1).setText("Yamada Taro")
     window.addRowButton.click()
     assert window.participantTable.rowCount() == 2
     assert window.participantTable.item(1, 0).text() == "有効"
@@ -117,6 +118,26 @@ def test_participant_master_window_adds_and_deletes_rows(qt_application):
     window.deleteRowButton.click()
 
     assert window.participantTable.rowCount() == 1
+    window.close()
+
+
+def test_participant_master_window_rejects_new_row_when_blank_row_exists(
+    qt_application,
+):
+    errors = []
+    window = ParticipantMasterWindow(
+        settings={"license_id": "LIC-TEST-001", "device_role": "master"},
+        participant_master_service=StubParticipantMasterService(),
+    )
+    window._show_error = lambda title, message: errors.append((title, message))
+
+    window.addRowButton.click()
+
+    assert errors == [("参加者マスタ", "未入力の行があります。")]
+    assert window.participantTable.rowCount() == 1
+    assert window.participantTable.currentRow() == 0
+    assert window.participantTable.currentColumn() == 0
+    assert window.participantTable.currentItem() == window.participantTable.item(0, 0)
     window.close()
 
 

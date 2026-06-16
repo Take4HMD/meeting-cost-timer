@@ -93,6 +93,7 @@ def test_role_rate_master_window_adds_and_deletes_rows(qt_application):
     assert window.roleRateTable.currentRow() == 0
     assert window.roleRateTable.currentColumn() == 0
 
+    window.roleRateTable.item(0, 1).setText("Manager")
     window.addRowButton.click()
     assert window.roleRateTable.rowCount() == 2
     assert window.roleRateTable.item(1, 0).text() == "有効"
@@ -105,6 +106,26 @@ def test_role_rate_master_window_adds_and_deletes_rows(qt_application):
     window.deleteRowButton.click()
 
     assert window.roleRateTable.rowCount() == 1
+    window.close()
+
+
+def test_role_rate_master_window_rejects_new_row_when_blank_row_exists(
+    qt_application,
+):
+    errors = []
+    window = RoleRateMasterWindow(
+        settings={"license_id": "LIC-TEST-001"},
+        role_rate_master_service=StubRoleRateMasterService(),
+    )
+    window._show_error = lambda title, message: errors.append((title, message))
+
+    window.addRowButton.click()
+
+    assert errors == [("役職単価マスタ", "未入力の行があります。")]
+    assert window.roleRateTable.rowCount() == 1
+    assert window.roleRateTable.currentRow() == 0
+    assert window.roleRateTable.currentColumn() == 0
+    assert window.roleRateTable.currentItem() == window.roleRateTable.item(0, 0)
     window.close()
 
 

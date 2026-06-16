@@ -29,7 +29,7 @@ class RoleRateMasterWindow(UiWindow):
         )
         self.role_rates: list[RoleRate] = []
 
-        self.addRowButton.clicked.connect(self.add_empty_row)
+        self.addRowButton.clicked.connect(self.add_row)
         self.deleteRowButton.clicked.connect(self.delete_selected_rows)
         self.saveButton.clicked.connect(self.save_role_rates)
         self.closeButton.clicked.connect(self.close)
@@ -69,6 +69,15 @@ class RoleRateMasterWindow(UiWindow):
             self._next_role_rate_id(),
         )
         self._focus_role_rate_cell(row, 0)
+
+    def add_row(self) -> None:
+        blank_row = self._first_blank_input_row()
+        if blank_row is not None:
+            self._show_error("役職単価マスタ", "未入力の行があります。")
+            self._focus_role_rate_cell(blank_row, 0)
+            return
+
+        self.add_empty_row()
 
     def delete_selected_rows(self) -> None:
         selected_rows = {
@@ -136,6 +145,12 @@ class RoleRateMasterWindow(UiWindow):
         self.roleRateTable.setCurrentCell(row, column)
         self.roleRateTable.scrollToItem(item)
         self.roleRateTable.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def _first_blank_input_row(self) -> int | None:
+        for row in range(self.roleRateTable.rowCount()):
+            if all(not self._cell_text(row, column) for column in range(1, 4)):
+                return row
+        return None
 
     def _row_role_rate_id(self, row: int) -> str:
         item = self.roleRateTable.item(row, 0)
