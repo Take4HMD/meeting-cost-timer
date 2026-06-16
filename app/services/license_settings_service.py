@@ -10,7 +10,19 @@ from config.settings import VALID_DEVICE_ROLES
 DEVICE_ROLE_MASTER = "master"
 DEVICE_ROLE_VIEWER = "viewer"
 SAVEABLE_DEVICE_ROLES = {DEVICE_ROLE_MASTER, DEVICE_ROLE_VIEWER}
-LICENSE_ID_PATTERN = re.compile(r"^[A-Z0-9-]+$")
+LICENSE_ID_PREFIX = "MCT"
+LICENSE_ID_RANDOM_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+LICENSE_ID_CHECK_SOURCE_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+LICENSE_ID_CHECK_WEIGHTS = (3, 5, 7, 11, 13, 17, 19)
+LICENSE_ID_PATTERN = re.compile(
+    rf"^{LICENSE_ID_PREFIX}-(\d{{6}})-"
+    rf"([{LICENSE_ID_RANDOM_ALPHABET}]{{4}})-"
+    rf"([{LICENSE_ID_RANDOM_ALPHABET}]{{4}})-"
+    rf"([{LICENSE_ID_RANDOM_ALPHABET}])$"
+)
+LICENSE_ID_FORMAT_ERROR_MESSAGE = (
+    "ライセンスIDは MCT-YYYYMM-XXXX-XXXX-C 形式で入力してください。"
+)
 HYPHEN_TRANSLATION = str.maketrans(
     {
         "‐": "-",
@@ -44,13 +56,41 @@ def normalize_license_id(license_id: str) -> str:
     return normalized.strip().upper()
 
 
+def calculate_license_check_digit(license_id_body: str) -> str:
+    body = license_id_body.replace("-", "").upper()
+    total = 0
+    for index, char in enumerate(body):
+        try:
+            char_value = LICENSE_ID_CHECK_SOURCE_CHARS.index(char)
+        except ValueError as exc:
+            raise LicenseSettingsValidationError(
+                LICENSE_ID_FORMAT_ERROR_MESSAGE
+            ) from exc
+        total += char_value * LICENSE_ID_CHECK_WEIGHTS[
+            index % len(LICENSE_ID_CHECK_WEIGHTS)
+        ]
+    return LICENSE_ID_RANDOM_ALPHABET[total % len(LICENSE_ID_RANDOM_ALPHABET)]
+
+
 def validate_license_id(license_id: str) -> str:
     normalized = normalize_license_id(license_id)
     if not normalized:
         raise LicenseSettingsValidationError("ライセンスIDを入力してください。")
-    if not LICENSE_ID_PATTERN.fullmatch(normalized):
+    match = LICENSE_ID_PATTERN.fullmatch(normalized)
+    if not match:
+        raise LicenseSettingsValidationError(LICENSE_ID_FORMAT_ERROR_MESSAGE)
+
+    issue_yyyymm, random_part_1, random_part_2, check_digit = match.groups()
+    issue_month = int(issue_yyyymm[4:6])
+    if issue_month < 1 or issue_month > 12:
+        raise LicenseSettingsValidationError(LICENSE_ID_FORMAT_ERROR_MESSAGE)
+
+    expected_check_digit = calculate_license_check_digit(
+        f"{LICENSE_ID_PREFIX}{issue_yyyymm}{random_part_1}{random_part_2}"
+    )
+    if check_digit != expected_check_digit:
         raise LicenseSettingsValidationError(
-            "ライセンスIDは半角英数字とハイフンで入力してください。"
+            "ライセンスIDのチェック桁が正しくありません。"
         )
     return normalized
 

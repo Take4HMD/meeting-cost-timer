@@ -10,6 +10,8 @@ from app.startup import StartupController, has_valid_license_device_settings
 from app.windows.license_settings_window import LicenseSettingsWindow
 from app.windows.main_menu_window import APP_VERSION_TEXT, MainMenuWindow
 
+VALID_LICENSE_ID = "MCT-202606-7K4P-Q9X2-Z"
+
 
 @pytest.fixture(scope="session")
 def qt_application():
@@ -78,7 +80,7 @@ class MenuLicenseWindow:
 
 def test_has_valid_license_device_settings_detects_complete_settings():
     assert has_valid_license_device_settings(
-        {"license_id": "LIC-TEST-001", "device_role": "master"}
+        {"license_id": VALID_LICENSE_ID, "device_role": "master"}
     )
 
 
@@ -104,7 +106,7 @@ def test_startup_controller_shows_license_settings_when_settings_are_invalid():
 
 
 def test_startup_controller_shows_main_menu_when_settings_are_valid():
-    settings = {"license_id": "LIC-TEST-001", "device_role": "viewer"}
+    settings = {"license_id": VALID_LICENSE_ID, "device_role": "viewer"}
     settings_service = StubSettingsService(settings)
     controller = StartupController(
         settings_service=settings_service,
@@ -132,7 +134,7 @@ def test_license_settings_window_saves_valid_settings_and_calls_on_saved(
         on_saved=saved_settings.append,
     )
 
-    window.licenseIdLineEdit.setText(" lic-test-001 ")
+    window.licenseIdLineEdit.setText(f" {VALID_LICENSE_ID.lower()} ")
     window.deviceRoleComboBox.setCurrentIndex(
         window.deviceRoleComboBox.findData("viewer")
     )
@@ -141,10 +143,10 @@ def test_license_settings_window_saves_valid_settings_and_calls_on_saved(
     window.save_settings()
 
     loaded_settings = service.load()
-    assert loaded_settings["license_id"] == "LIC-TEST-001"
+    assert loaded_settings["license_id"] == VALID_LICENSE_ID
     assert loaded_settings["device_role"] == "viewer"
     assert saved_settings
-    assert saved_settings[0]["license_id"] == "LIC-TEST-001"
+    assert saved_settings[0]["license_id"] == VALID_LICENSE_ID
     window.close()
 
 
@@ -185,7 +187,7 @@ def test_license_settings_window_shows_error_for_invalid_settings(
 
 def test_main_menu_window_reflects_license_settings(qt_application):
     window = MainMenuWindow(
-        settings={"license_id": "LIC-TEST-001", "device_role": "master"}
+        settings={"license_id": VALID_LICENSE_ID, "device_role": "master"}
     )
 
     assert window.deviceRoleLabel.text() == "端末種別: 親機"
@@ -196,7 +198,7 @@ def test_main_menu_window_reflects_license_settings(qt_application):
 
 def test_main_menu_window_reflects_invalid_license_settings(qt_application):
     window = MainMenuWindow(
-        settings={"license_id": "LIC-TEST-001", "device_role": ""}
+        settings={"license_id": VALID_LICENSE_ID, "device_role": ""}
     )
 
     assert window.deviceRoleLabel.text() == "端末種別: 未設定"
@@ -219,10 +221,10 @@ def test_main_menu_buttons_open_destination_windows(
 ):
     MenuDestinationWindow.created = []
     settings_service = StubSettingsService(
-        {"license_id": "LIC-TEST-001", "device_role": "master"}
+        {"license_id": VALID_LICENSE_ID, "device_role": "master"}
     )
     window = MainMenuWindow(
-        settings={"license_id": "LIC-TEST-001", "device_role": "master"},
+        settings={"license_id": VALID_LICENSE_ID, "device_role": "master"},
         settings_service=settings_service,
         destination_window_classes={
             "meeting_start": MenuDestinationWindow,
@@ -240,7 +242,7 @@ def test_main_menu_buttons_open_destination_windows(
     assert destination_key in window.destination_window_classes
     if destination_key in {"meeting_start", "master_menu"}:
         assert MenuDestinationWindow.created[0].kwargs["settings"] == {
-            "license_id": "LIC-TEST-001",
+            "license_id": VALID_LICENSE_ID,
             "device_role": "master",
         }
     if destination_key == "meeting_start":
@@ -253,7 +255,7 @@ def test_main_menu_buttons_open_destination_windows(
 
 def test_main_menu_license_button_opens_license_settings_window(qt_application):
     MenuLicenseWindow.created = []
-    settings = {"license_id": "LIC-TEST-001", "device_role": "viewer"}
+    settings = {"license_id": VALID_LICENSE_ID, "device_role": "viewer"}
     settings_service = StubSettingsService(settings)
     window = MainMenuWindow(
         settings=settings,
