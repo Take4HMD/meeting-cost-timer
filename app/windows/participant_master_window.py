@@ -115,7 +115,7 @@ class ParticipantMasterWindow(UiWindow):
         for row in sorted(selected_rows, reverse=True):
             self.participantTable.removeRow(row)
 
-    def save_participants(self) -> None:
+    def save_participants(self) -> bool:
         try:
             participants = self.collect_participants()
             self.participant_master_service.save_participants(
@@ -124,11 +124,12 @@ class ParticipantMasterWindow(UiWindow):
             )
         except Exception:
             self._show_error("参加者マスタ", "参加者マスタの保存に失敗しました。")
-            return
+            return False
 
         self.participants = participants
         self._saved_table_snapshot = self._table_snapshot()
         self._show_info("参加者マスタ", "保存しました。")
+        return True
 
     def request_close(self) -> None:
         self.close()
@@ -199,7 +200,10 @@ class ParticipantMasterWindow(UiWindow):
         if changed_cell is None:
             return True
 
-        if self._confirm_discard_changes():
+        reply = self._confirm_save_changes()
+        if reply == QMessageBox.StandardButton.Yes:
+            return self.save_participants()
+        if reply == QMessageBox.StandardButton.No:
             return True
 
         self._focus_participant_cell(*changed_cell)
@@ -230,15 +234,18 @@ class ParticipantMasterWindow(UiWindow):
             for row in range(self.participantTable.rowCount())
         )
 
-    def _confirm_discard_changes(self) -> bool:
-        reply = QMessageBox.question(
+    def _confirm_save_changes(self) -> QMessageBox.StandardButton:
+        return QMessageBox.question(
             self,
             "参加者マスタ",
-            "保存されていない変更があります。保存せずに閉じますか？",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No,
+            "保存されていない変更があります。保存しますか？",
+            (
+                QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No
+                | QMessageBox.StandardButton.Cancel
+            ),
+            QMessageBox.StandardButton.Yes,
         )
-        return reply == QMessageBox.StandardButton.Yes
 
     def _row_participant_id(self, row: int) -> str:
         item = self.participantTable.item(row, 0)

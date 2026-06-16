@@ -3,7 +3,7 @@ import os
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
-from PyQt6.QtWidgets import QApplication, QTableWidgetItem
+from PyQt6.QtWidgets import QApplication, QMessageBox, QTableWidgetItem
 
 from app.models.participant import Participant
 from app.windows.participant_master_window import ParticipantMasterWindow
@@ -118,7 +118,7 @@ def test_participant_master_window_adds_and_deletes_rows(qt_application):
     window.deleteRowButton.click()
 
     assert window.participantTable.rowCount() == 1
-    window._confirm_discard_changes = lambda: True
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.No
     window.close()
 
 
@@ -194,7 +194,7 @@ def test_participant_master_window_shows_error_when_save_validation_fails(
 
     assert errors
     assert service.saved_participants is None
-    window._confirm_discard_changes = lambda: True
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.No
     window.close()
 
 
@@ -210,33 +210,52 @@ def test_participant_master_window_keeps_window_open_when_close_is_cancelled(
     window.show()
     window.participantTable.item(0, 1).setText("Changed Name")
     window.participantTable.setCurrentCell(0, 2)
-    window._confirm_discard_changes = lambda: False
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.Cancel
 
     window.request_close()
 
     assert window.isVisible()
     assert window.participantTable.currentRow() == 0
     assert window.participantTable.currentColumn() == 1
-    window._confirm_discard_changes = lambda: True
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.No
     window.close()
+
+
+def test_participant_master_window_closes_when_unsaved_changes_are_saved(
+    qt_application,
+):
+    service = StubParticipantMasterService(loaded_participants=[_participant()])
+    window = ParticipantMasterWindow(
+        settings={"license_id": "LIC-TEST-001", "device_role": "master"},
+        participant_master_service=service,
+    )
+    window.show()
+    window.participantTable.item(0, 1).setText("Changed Name")
+    window._show_info = lambda title, message: None
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.Yes
+
+    window.request_close()
+
+    assert not window.isVisible()
+    assert service.saved_participants[0].name == "Changed Name"
 
 
 def test_participant_master_window_closes_when_unsaved_changes_are_discarded(
     qt_application,
 ):
+    service = StubParticipantMasterService(loaded_participants=[_participant()])
     window = ParticipantMasterWindow(
         settings={"license_id": "LIC-TEST-001", "device_role": "master"},
-        participant_master_service=StubParticipantMasterService(
-            loaded_participants=[_participant()]
-        ),
+        participant_master_service=service,
     )
     window.show()
     window.participantTable.item(0, 1).setText("Changed Name")
-    window._confirm_discard_changes = lambda: True
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.No
 
     window.request_close()
 
     assert not window.isVisible()
+    assert service.saved_participants is None
 
 
 def test_participant_master_window_handles_load_error(qt_application):
