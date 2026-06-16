@@ -148,6 +148,17 @@ def test_license_settings_window_saves_valid_settings_and_calls_on_saved(
     window.close()
 
 
+def test_license_settings_window_has_readable_minimum_size(qt_application):
+    window = LicenseSettingsWindow()
+
+    assert window.minimumWidth() >= 420
+    assert window.minimumHeight() >= 220
+    assert window.licenseIdLineEdit.minimumWidth() >= 220
+    assert window.deviceRoleComboBox.minimumWidth() >= 220
+
+    window.close()
+
+
 def test_license_settings_window_shows_error_for_invalid_settings(
     qt_application,
     tmp_path,
