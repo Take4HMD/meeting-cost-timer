@@ -104,6 +104,9 @@ def test_participant_master_window_adds_and_deletes_rows(qt_application):
     assert window.participantTable.rowCount() == 1
     assert window.participantTable.item(0, 0).text() == "有効"
     assert window.participantTable.item(0, 1).text() == ""
+    assert window.participantTable.currentRow() == 0
+    assert window.participantTable.currentColumn() == 0
+    assert window.participantTable.currentItem() == window.participantTable.item(0, 0)
 
     window.participantTable.selectRow(0)
     window.deleteRowButton.click()

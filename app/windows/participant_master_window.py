@@ -85,6 +85,7 @@ class ParticipantMasterWindow(UiWindow):
             Qt.ItemDataRole.UserRole,
             self._next_participant_id(),
         )
+        self._focus_participant_cell(row, 0)
 
     def delete_selected_rows(self) -> None:
         selected_rows = {
@@ -150,6 +151,15 @@ class ParticipantMasterWindow(UiWindow):
 
     def _set_item(self, row: int, column: int, text: str) -> None:
         self.participantTable.setItem(row, column, QTableWidgetItem(text))
+
+    def _focus_participant_cell(self, row: int, column: int) -> None:
+        item = self.participantTable.item(row, column)
+        if item is None:
+            return
+
+        self.participantTable.setCurrentCell(row, column)
+        self.participantTable.scrollToItem(item)
+        self.participantTable.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def _row_participant_id(self, row: int) -> str:
         item = self.participantTable.item(row, 0)
