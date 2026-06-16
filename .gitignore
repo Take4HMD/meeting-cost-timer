@@ -12,18 +12,23 @@ venv/
 env/
 
 # Build / distribution artifacts
-build/
-dist/
-installer/*.exe
+build/*
+!build/.gitkeep
+dist/*
+!dist/.gitkeep
+installer/*
+!installer/.gitkeep
 
 # Runtime logs
-logs/
+logs/*
+!logs/.gitkeep
 *.log
 
 # Local application settings / generated data
 config/app_settings.json
 config/app_settings_broken_*.json
-data/
+data/*
+!data/.gitkeep
 
 # Editor / OS files
 .vscode/
