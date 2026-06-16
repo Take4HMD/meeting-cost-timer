@@ -6,6 +6,7 @@ import pytest
 from PyQt6.QtWidgets import QApplication
 
 from app.utils.ui_loader import ui_path
+from app.windows.base_window import UI_MINIMUM_SIZES
 from app.windows import (
     CountDisplayWindow,
     DirectInputWindow,
@@ -75,5 +76,23 @@ def test_window_loads_ui_and_exposes_defined_objects(
 
     for object_name in object_names:
         assert hasattr(window, object_name)
+
+    window.close()
+
+
+@pytest.mark.parametrize(("window_class", "file_name", "_object_names"), WINDOW_CASES)
+def test_window_has_readable_minimum_size(
+    qt_application,
+    window_class,
+    file_name,
+    _object_names,
+):
+    window = window_class()
+    minimum_width, minimum_height = UI_MINIMUM_SIZES[file_name]
+
+    assert window.minimumWidth() >= minimum_width
+    assert window.minimumHeight() >= minimum_height
+    assert window.width() >= minimum_width
+    assert window.height() >= minimum_height
 
     window.close()
