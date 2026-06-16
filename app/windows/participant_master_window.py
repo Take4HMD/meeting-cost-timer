@@ -123,6 +123,7 @@ class ParticipantMasterWindow(UiWindow):
             return
 
         self.participants = participants
+        self._show_info("参加者マスタ", "保存しました。")
 
     def collect_participants(self) -> list[Participant]:
         participants = []
@@ -239,3 +240,6 @@ class ParticipantMasterWindow(UiWindow):
 
     def _show_error(self, title: str, message: str) -> None:
         QMessageBox.warning(self, title, message)
+
+    def _show_info(self, title: str, message: str) -> None:
+        QMessageBox.information(self, title, message)

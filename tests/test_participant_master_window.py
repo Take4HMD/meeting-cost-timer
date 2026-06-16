@@ -155,6 +155,8 @@ def test_participant_master_window_saves_table_values(qt_application):
     window.participantTable.setItem(0, 5, QTableWidgetItem("7000"))
     window.participantTable.setItem(0, 6, QTableWidgetItem(""))
     window._show_error = pytest.fail
+    messages = []
+    window._show_info = lambda title, message: messages.append((title, message))
 
     window.saveButton.click()
 
@@ -171,6 +173,7 @@ def test_participant_master_window_saves_table_values(qt_application):
             sort_order=None,
         )
     ]
+    assert messages == [("参加者マスタ", "保存しました。")]
     window.close()
 
 
