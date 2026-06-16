@@ -6,7 +6,11 @@ import pytest
 from PyQt6.QtWidgets import QApplication
 
 from app.utils.ui_loader import ui_path
-from app.windows.base_window import UI_MINIMUM_SIZES
+from app.windows.base_window import (
+    UI_MINIMUM_SIZES,
+    WINDOW_CONTENT_MARGINS,
+    WINDOW_LAYOUT_SPACING,
+)
 from app.windows import (
     CountDisplayWindow,
     DirectInputWindow,
@@ -96,3 +100,35 @@ def test_window_has_readable_minimum_size(
     assert window.height() >= minimum_height
 
     window.close()
+
+
+@pytest.mark.parametrize(("window_class", "_file_name", "_object_names"), WINDOW_CASES)
+def test_window_has_readable_layout_spacing(
+    qt_application,
+    window_class,
+    _file_name,
+    _object_names,
+):
+    window = window_class()
+    root_layout = window.centralWidget().layout()
+    margins = root_layout.contentsMargins()
+
+    assert (
+        margins.left(),
+        margins.top(),
+        margins.right(),
+        margins.bottom(),
+    ) == WINDOW_CONTENT_MARGINS
+    assert root_layout.spacing() >= WINDOW_LAYOUT_SPACING
+    assert _minimum_nested_layout_spacing(root_layout) >= WINDOW_LAYOUT_SPACING
+
+    window.close()
+
+
+def _minimum_nested_layout_spacing(layout):
+    spacings = [layout.spacing()]
+    for index in range(layout.count()):
+        child_layout = layout.itemAt(index).layout()
+        if child_layout is not None:
+            spacings.append(_minimum_nested_layout_spacing(child_layout))
+    return min(spacings)

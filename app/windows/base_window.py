@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtWidgets import QLayout, QMainWindow
 
 from app.utils.ui_loader import load_ui
 
@@ -22,6 +22,8 @@ UI_MINIMUM_SIZES = {
     "result_export.ui": (720, 220),
     "display_settings.ui": (520, 360),
 }
+WINDOW_CONTENT_MARGINS = (16, 16, 16, 16)
+WINDOW_LAYOUT_SPACING = 10
 
 
 class UiWindow(QMainWindow):
@@ -30,6 +32,7 @@ class UiWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
         load_ui(self.ui_file_name, self)
+        self._apply_readable_layout_spacing()
         self._apply_minimum_readable_size()
 
     def _apply_minimum_readable_size(self) -> None:
@@ -40,3 +43,23 @@ class UiWindow(QMainWindow):
         minimum_width, minimum_height = minimum_size
         self.setMinimumSize(minimum_width, minimum_height)
         self.resize(minimum_width, minimum_height)
+
+    def _apply_readable_layout_spacing(self) -> None:
+        central_widget = self.centralWidget()
+        if central_widget is None:
+            return
+
+        root_layout = central_widget.layout()
+        if root_layout is None:
+            return
+
+        root_layout.setContentsMargins(*WINDOW_CONTENT_MARGINS)
+        self._apply_layout_spacing(root_layout)
+
+    def _apply_layout_spacing(self, layout: QLayout) -> None:
+        layout.setSpacing(WINDOW_LAYOUT_SPACING)
+
+        for index in range(layout.count()):
+            child_layout = layout.itemAt(index).layout()
+            if child_layout is not None:
+                self._apply_layout_spacing(child_layout)
