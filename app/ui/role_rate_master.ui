@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>RoleRateMasterWindow</class>
+ <widget class="QMainWindow" name="RoleRateMasterWindow">
+  <property name="windowTitle"><string>役職単価マスタ</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item><widget class="QTableWidget" name="roleRateTable"><column><property name="text"><string>有効</string></property></column><column><property name="text"><string>役職名</string></property></column><column><property name="text"><string>概算時間単価</string></property></column><column><property name="text"><string>表示順</string></property></column></widget></item>
+    <item><layout class="QHBoxLayout" name="buttonLayout"><item><widget class="QPushButton" name="addRowButton"><property name="text"><string>新規行追加</string></property></widget></item><item><widget class="QPushButton" name="deleteRowButton"><property name="text"><string>選択行削除</string></property></widget></item><item><widget class="QPushButton" name="saveButton"><property name="text"><string>保存</string></property></widget></item><item><widget class="QPushButton" name="resetDefaultsButton"><property name="text"><string>初期値に戻す</string></property></widget></item><item><widget class="QPushButton" name="closeButton"><property name="text"><string>閉じる</string></property></widget></item></layout></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

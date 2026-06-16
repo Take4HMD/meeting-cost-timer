@@ -1,0 +1,33 @@
+# Python cache / test artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build / distribution artifacts
+build/
+dist/
+installer/*.exe
+
+# Runtime logs
+logs/
+*.log
+
+# Local application settings / generated data
+config/app_settings.json
+config/app_settings_broken_*.json
+data/
+
+# Editor / OS files
+.vscode/
+.idea/
+*.code-workspace
+Thumbs.db
+Desktop.ini

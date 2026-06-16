@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainMenuWindow</class>
+ <widget class="QMainWindow" name="MainMenuWindow">
+  <property name="windowTitle"><string>メインメニュー</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item><widget class="QLabel" name="titleLabel"><property name="text"><string>メインメニュー</string></property></widget></item>
+    <item><widget class="QPushButton" name="startMeetingButton"><property name="text"><string>会議を開始</string></property></widget></item>
+    <item><widget class="QPushButton" name="masterMenuButton"><property name="text"><string>マスタ管理</string></property></widget></item>
+    <item><widget class="QPushButton" name="displaySettingsButton"><property name="text"><string>表示設定</string></property></widget></item>
+    <item><widget class="QPushButton" name="licenseSettingsButton"><property name="text"><string>ライセンス・端末設定</string></property></widget></item>
+    <item><widget class="QPushButton" name="exitButton"><property name="text"><string>終了</string></property></widget></item>
+    <item><widget class="QLabel" name="deviceRoleLabel"><property name="text"><string>端末種別: 未設定</string></property></widget></item>
+    <item><widget class="QLabel" name="licenseStatusLabel"><property name="text"><string>ライセンス状態: 未設定</string></property></widget></item>
+    <item><widget class="QLabel" name="appVersionLabel"><property name="text"><string>Ver.1.0.0</string></property></widget></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

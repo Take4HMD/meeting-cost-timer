@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>McdImportWindow</class>
+ <widget class="QMainWindow" name="McdImportWindow">
+  <property name="windowTitle"><string>表示用データ読込</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item><layout class="QHBoxLayout" name="fileLayout"><item><widget class="QLineEdit" name="mcdFileLineEdit"/></item><item><widget class="QPushButton" name="browseButton"><property name="text"><string>参照</string></property></widget></item></layout></item>
+    <item><layout class="QHBoxLayout" name="buttonLayout"><item><widget class="QPushButton" name="loadButton"><property name="text"><string>読込実行</string></property></widget></item><item><widget class="QPushButton" name="closeButton"><property name="text"><string>閉じる</string></property></widget></item></layout></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

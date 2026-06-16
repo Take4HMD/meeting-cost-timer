@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MasterMenuWindow</class>
+ <widget class="QMainWindow" name="MasterMenuWindow">
+  <property name="windowTitle"><string>マスタメニュー</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item><widget class="QPushButton" name="participantMasterButton"><property name="text"><string>参加者マスタ</string></property></widget></item>
+    <item><widget class="QPushButton" name="roleRateMasterButton"><property name="text"><string>役職単価マスタ</string></property></widget></item>
+    <item><widget class="QPushButton" name="masterImportButton"><property name="text"><string>マスタ取込</string></property></widget></item>
+    <item><widget class="QPushButton" name="masterExportButton"><property name="text"><string>マスタ出力</string></property></widget></item>
+    <item><widget class="QPushButton" name="closeButton"><property name="text"><string>閉じる</string></property></widget></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

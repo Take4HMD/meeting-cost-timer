@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LicenseSettingsWindow</class>
+ <widget class="QMainWindow" name="LicenseSettingsWindow">
+  <property name="windowTitle"><string>ライセンス・端末設定</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QFormLayout" name="formLayout">
+    <item row="0" column="0"><widget class="QLabel" name="licenseIdLabel"><property name="text"><string>ライセンスID</string></property></widget></item>
+    <item row="0" column="1"><widget class="QLineEdit" name="licenseIdLineEdit"/></item>
+    <item row="1" column="0"><widget class="QLabel" name="deviceRoleLabel"><property name="text"><string>端末種別</string></property></widget></item>
+    <item row="1" column="1"><widget class="QComboBox" name="deviceRoleComboBox"><item><property name="text"><string>親機</string></property></item><item><property name="text"><string>子機</string></property></item></widget></item>
+    <item row="2" column="0"><widget class="QLabel" name="licenseStatusTitleLabel"><property name="text"><string>ライセンス状態</string></property></widget></item>
+    <item row="2" column="1"><widget class="QLabel" name="licenseStatusLabel"><property name="text"><string>未設定</string></property></widget></item>
+    <item row="3" column="0"><widget class="QPushButton" name="saveButton"><property name="text"><string>保存</string></property></widget></item>
+    <item row="3" column="1"><widget class="QPushButton" name="closeButton"><property name="text"><string>閉じる</string></property></widget></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

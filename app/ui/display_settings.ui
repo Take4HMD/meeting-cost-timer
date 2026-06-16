@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DisplaySettingsWindow</class>
+ <widget class="QMainWindow" name="DisplaySettingsWindow">
+  <property name="windowTitle"><string>表示設定</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QFormLayout" name="formLayout">
+    <item row="0" column="0"><widget class="QLabel" name="displayModeLabel"><property name="text"><string>表示モード</string></property></widget></item>
+    <item row="0" column="1"><widget class="QComboBox" name="displayModeComboBox"><item><property name="text"><string>透過</string></property></item><item><property name="text"><string>背景色あり</string></property></item></widget></item>
+    <item row="1" column="0"><widget class="QLabel" name="backgroundColorLabel"><property name="text"><string>背景色</string></property></widget></item>
+    <item row="1" column="1"><widget class="QLineEdit" name="backgroundColorLineEdit"/></item>
+    <item row="2" column="0"><widget class="QLabel" name="textColorLabel"><property name="text"><string>文字色</string></property></widget></item>
+    <item row="2" column="1"><widget class="QLineEdit" name="textColorLineEdit"/></item>
+    <item row="3" column="0"><widget class="QLabel" name="fontSizeLabel"><property name="text"><string>文字サイズ</string></property></widget></item>
+    <item row="3" column="1"><widget class="QSpinBox" name="fontSizeSpinBox"><property name="minimum"><number>12</number></property><property name="maximum"><number>96</number></property></widget></item>
+    <item row="4" column="0"><widget class="QLabel" name="opacityLabel"><property name="text"><string>透明度</string></property></widget></item>
+    <item row="4" column="1"><widget class="QSpinBox" name="opacitySpinBox"><property name="minimum"><number>30</number></property><property name="maximum"><number>100</number></property></widget></item>
+    <item row="5" column="0"><widget class="QLabel" name="alwaysOnTopLabel"><property name="text"><string>常時前面</string></property></widget></item>
+    <item row="5" column="1"><widget class="QCheckBox" name="alwaysOnTopCheckBox"><property name="checked"><bool>true</bool></property></widget></item>
+    <item row="6" column="0"><widget class="QPushButton" name="previewButton"><property name="text"><string>プレビュー</string></property></widget></item>
+    <item row="6" column="1"><widget class="QPushButton" name="saveButton"><property name="text"><string>保存</string></property></widget></item>
+    <item row="7" column="0"><widget class="QPushButton" name="resetDefaultsButton"><property name="text"><string>初期値に戻す</string></property></widget></item>
+    <item row="7" column="1"><widget class="QPushButton" name="closeButton"><property name="text"><string>閉じる</string></property></widget></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

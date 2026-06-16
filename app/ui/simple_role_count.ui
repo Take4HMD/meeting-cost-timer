@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SimpleRoleCountWindow</class>
+ <widget class="QMainWindow" name="SimpleRoleCountWindow">
+  <property name="windowTitle"><string>簡易モード人数入力</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item><widget class="QTableWidget" name="roleCountTable"><column><property name="text"><string>役職名</string></property></column><column><property name="text"><string>人数</string></property></column></widget></item>
+    <item><layout class="QHBoxLayout" name="buttonLayout"><item><widget class="QPushButton" name="confirmButton"><property name="text"><string>確定</string></property></widget></item><item><widget class="QPushButton" name="clearButton"><property name="text"><string>クリア</string></property></widget></item><item><widget class="QPushButton" name="closeButton"><property name="text"><string>閉じる</string></property></widget></item></layout></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

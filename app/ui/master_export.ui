@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MasterExportWindow</class>
+ <widget class="QMainWindow" name="MasterExportWindow">
+  <property name="windowTitle"><string>マスタ出力</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item><widget class="QComboBox" name="exportTargetComboBox"><item><property name="text"><string>役職単価マスタ</string></property></item><item><property name="text"><string>表示用データ</string></property></item><item><property name="text"><string>取込テンプレート</string></property></item></widget></item>
+    <item><layout class="QHBoxLayout" name="folderLayout"><item><widget class="QLineEdit" name="exportFolderLineEdit"/></item><item><widget class="QPushButton" name="browseButton"><property name="text"><string>参照</string></property></widget></item><item><widget class="QPushButton" name="openExplorerButton"><property name="text"><string>エクスプローラーで開く</string></property></widget></item></layout></item>
+    <item><layout class="QHBoxLayout" name="buttonLayout"><item><widget class="QPushButton" name="exportButton"><property name="text"><string>出力実行</string></property></widget></item><item><widget class="QPushButton" name="closeButton"><property name="text"><string>閉じる</string></property></widget></item></layout></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CountDisplayWindow</class>
+ <widget class="QMainWindow" name="CountDisplayWindow">
+  <property name="windowTitle"><string>カウント表示</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item><widget class="QLabel" name="costLabel"><property name="text"><string>0円</string></property><property name="alignment"><set>Qt::AlignmentFlag::AlignCenter</set></property></widget></item>
+    <item><layout class="QHBoxLayout" name="buttonLayout"><item><widget class="QPushButton" name="startButton"><property name="text"><string>開始</string></property></widget></item><item><widget class="QPushButton" name="pauseButton"><property name="text"><string>一時停止</string></property></widget></item><item><widget class="QPushButton" name="resumeButton"><property name="text"><string>再開</string></property></widget></item><item><widget class="QPushButton" name="finishButton"><property name="text"><string>終了</string></property></widget></item></layout></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

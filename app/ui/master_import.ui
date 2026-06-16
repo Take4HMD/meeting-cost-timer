@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MasterImportWindow</class>
+ <widget class="QMainWindow" name="MasterImportWindow">
+  <property name="windowTitle"><string>マスタ取込</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item><widget class="QComboBox" name="importTargetComboBox"><item><property name="text"><string>参加者マスタ</string></property></item><item><property name="text"><string>役職単価マスタ</string></property></item></widget></item>
+    <item><layout class="QHBoxLayout" name="fileLayout"><item><widget class="QLineEdit" name="importFileLineEdit"/></item><item><widget class="QPushButton" name="browseButton"><property name="text"><string>参照</string></property></widget></item></layout></item>
+    <item><widget class="QTableWidget" name="previewTable"><column><property name="text"><string>項目</string></property></column><column><property name="text"><string>内容</string></property></column></widget></item>
+    <item><layout class="QHBoxLayout" name="buttonLayout"><item><widget class="QPushButton" name="templateExportButton"><property name="text"><string>テンプレート出力</string></property></widget></item><item><widget class="QPushButton" name="importButton"><property name="text"><string>取込実行</string></property></widget></item><item><widget class="QPushButton" name="closeButton"><property name="text"><string>閉じる</string></property></widget></item></layout></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

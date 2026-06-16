@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PreciseParticipantSelectionWindow</class>
+ <widget class="QMainWindow" name="PreciseParticipantSelectionWindow">
+  <property name="windowTitle"><string>精密モード参加者選択</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item><widget class="QLineEdit" name="searchLineEdit"><property name="placeholderText"><string>検索</string></property></widget></item>
+    <item><layout class="QHBoxLayout" name="filterLayout"><item><widget class="QComboBox" name="departmentFilterComboBox"/></item><item><widget class="QComboBox" name="positionFilterComboBox"/></item></layout></item>
+    <item><widget class="QTableWidget" name="participantSelectionTable"><column><property name="text"><string>選択</string></property></column><column><property name="text"><string>氏名</string></property></column><column><property name="text"><string>部署</string></property></column><column><property name="text"><string>役職</string></property></column><column><property name="text"><string>識別名</string></property></column></widget></item>
+    <item><layout class="QHBoxLayout" name="buttonLayout"><item><widget class="QPushButton" name="confirmButton"><property name="text"><string>確定</string></property></widget></item><item><widget class="QPushButton" name="clearButton"><property name="text"><string>クリア</string></property></widget></item><item><widget class="QPushButton" name="closeButton"><property name="text"><string>閉じる</string></property></widget></item></layout></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

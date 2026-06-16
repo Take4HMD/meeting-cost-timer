@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MeetingStartSettingsWindow</class>
+ <widget class="QMainWindow" name="MeetingStartSettingsWindow">
+  <property name="windowTitle"><string>会議開始設定</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QFormLayout" name="formLayout">
+    <item row="0" column="0"><widget class="QLabel" name="meetingNameLabel"><property name="text"><string>会議名</string></property></widget></item>
+    <item row="0" column="1"><widget class="QLineEdit" name="meetingNameLineEdit"/></item>
+    <item row="1" column="0"><widget class="QLabel" name="calculationModeLabel"><property name="text"><string>算出方式</string></property></widget></item>
+    <item row="1" column="1"><widget class="QComboBox" name="calculationModeComboBox"><item><property name="text"><string>精密</string></property></item><item><property name="text"><string>簡易</string></property></item><item><property name="text"><string>表示用データ読込</string></property></item><item><property name="text"><string>直接入力</string></property></item></widget></item>
+    <item row="2" column="0"><widget class="QLabel" name="totalHourlyRateLabel"><property name="text"><string>合算時間単価</string></property></widget></item>
+    <item row="2" column="1"><widget class="QSpinBox" name="totalHourlyRateSpinBox"><property name="minimum"><number>1</number></property><property name="maximum"><number>999999999</number></property></widget></item>
+    <item row="3" column="0"><widget class="QPushButton" name="startButton"><property name="text"><string>開始</string></property></widget></item>
+    <item row="3" column="1"><widget class="QPushButton" name="closeButton"><property name="text"><string>閉じる</string></property></widget></item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
