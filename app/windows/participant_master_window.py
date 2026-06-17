@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+from pathlib import Path
 import re
+from typing import Callable
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QCloseEvent
-from PyQt6.QtWidgets import QMessageBox, QTableWidgetItem
+from PyQt6.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
 
 from app.models.participant import Participant
 from app.services.license_settings_service import DEVICE_ROLE_VIEWER
+from app.services.master_import_merge_service import merge_imported_participants
+from app.services.participant_csv_import_service import import_participants_from_csv
 from app.services.participant_master_service import ParticipantMasterService
 from app.windows.base_window import UiWindow
 
@@ -23,18 +27,22 @@ class ParticipantMasterWindow(UiWindow):
         self,
         settings: dict | None = None,
         participant_master_service: ParticipantMasterService | None = None,
+        participant_csv_importer: Callable[[Path], list[Participant]]
+        = import_participants_from_csv,
     ) -> None:
         super().__init__()
         self.settings = settings or {}
         self.participant_master_service = (
             participant_master_service or ParticipantMasterService()
         )
+        self.participant_csv_importer = participant_csv_importer
         self.participants: list[Participant] = []
         self._saved_table_snapshot: tuple[tuple[str, ...], ...] = ()
 
         self.addRowButton.clicked.connect(self.add_row)
         self.deleteRowButton.clicked.connect(self.delete_selected_rows)
         self.saveButton.clicked.connect(self.save_participants)
+        self.csvImportButton.clicked.connect(self.import_csv)
         self.closeButton.clicked.connect(self.request_close)
         self.apply_device_role()
         self.load_participants()
@@ -114,6 +122,32 @@ class ParticipantMasterWindow(UiWindow):
 
         for row in sorted(selected_rows, reverse=True):
             self.participantTable.removeRow(row)
+
+    def import_csv(self) -> None:
+        file_path = self._select_csv_file()
+        if file_path is None:
+            return
+
+        try:
+            existing_participants = self._collect_non_blank_participants()
+            imported_participants = self.participant_csv_importer(file_path)
+            merge_result = merge_imported_participants(
+                existing_participants,
+                imported_participants,
+            )
+        except Exception:
+            self._show_error("参加者マスタ", "CSV取込に失敗しました。")
+            return
+
+        self.set_participants(merge_result.items)
+        if self.participantTable.rowCount() == 0:
+            self.add_empty_row()
+        else:
+            self._focus_participant_cell(0, 0)
+        self._show_info(
+            "参加者マスタ",
+            f"CSV取込が完了しました。追加: {merge_result.added_count}件、更新: {merge_result.updated_count}件",
+        )
 
     def save_participants(self) -> bool:
         try:
@@ -233,6 +267,36 @@ class ParticipantMasterWindow(UiWindow):
             tuple(self._cell_text(row, column) for column in range(7))
             for row in range(self.participantTable.rowCount())
         )
+
+    def _collect_non_blank_participants(self) -> list[Participant]:
+        participants = []
+        for row in range(self.participantTable.rowCount()):
+            if all(not self._cell_text(row, column) for column in range(1, 7)):
+                continue
+            participants.append(
+                Participant(
+                    participant_id=self._row_participant_id(row),
+                    is_active=self._is_active_cell(row),
+                    name=self._cell_text(row, 1),
+                    department=self._cell_text(row, 2),
+                    position=self._cell_text(row, 3),
+                    display_name=self._cell_text(row, 4),
+                    hourly_rate=self._positive_int_cell(row, 5, "概算時間単価"),
+                    sort_order=self._optional_positive_int_cell(row, 6, "表示順"),
+                )
+            )
+        return participants
+
+    def _select_csv_file(self) -> Path | None:
+        file_name, _selected_filter = QFileDialog.getOpenFileName(
+            self,
+            "CSVファイルを選択",
+            "",
+            "CSV Files (*.csv);;All Files (*)",
+        )
+        if not file_name:
+            return None
+        return Path(file_name)
 
     def _confirm_save_changes(self) -> QMessageBox.StandardButton:
         return QMessageBox.question(

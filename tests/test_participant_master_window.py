@@ -3,6 +3,7 @@ import os
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import pytest
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QMessageBox, QTableWidgetItem
 
 from app.models.participant import Participant
@@ -139,6 +140,98 @@ def test_participant_master_window_rejects_new_row_when_blank_row_exists(
     assert window.participantTable.currentRow() == 0
     assert window.participantTable.currentColumn() == 0
     assert window.participantTable.currentItem() == window.participantTable.item(0, 0)
+    window.close()
+
+
+def test_participant_master_window_imports_csv_and_merges_rows(qt_application, tmp_path):
+    csv_path = tmp_path / "participants.csv"
+    imported_participants = [
+        Participant(
+            participant_id="P-000001",
+            is_active=True,
+            name="Yamada Taro",
+            department="Sales",
+            position="Manager",
+            display_name="A",
+            hourly_rate=8000,
+            sort_order=2,
+        ),
+        Participant(
+            participant_id="P-000002",
+            is_active=True,
+            name="Suzuki Jiro",
+            hourly_rate=5000,
+        ),
+    ]
+    service = StubParticipantMasterService(
+        loaded_participants=[_participant(participant_id="P-000010")]
+    )
+    messages = []
+    window = ParticipantMasterWindow(
+        settings={"license_id": "LIC-TEST-001", "device_role": "master"},
+        participant_master_service=service,
+        participant_csv_importer=lambda path: imported_participants,
+    )
+    window._select_csv_file = lambda: csv_path
+    window._show_info = lambda title, message: messages.append((title, message))
+
+    window.csvImportButton.click()
+
+    assert window.participantTable.rowCount() == 2
+    assert (
+        window.participantTable.item(0, 0).data(Qt.ItemDataRole.UserRole)
+        == "P-000010"
+    )
+    assert window.participantTable.item(0, 1).text() == "Yamada Taro"
+    assert window.participantTable.item(0, 5).text() == "8000"
+    assert (
+        window.participantTable.item(1, 0).data(Qt.ItemDataRole.UserRole)
+        == "P-000011"
+    )
+    assert window.participantTable.item(1, 1).text() == "Suzuki Jiro"
+    assert window.participantTable.currentRow() == 0
+    assert window.participantTable.currentColumn() == 0
+    assert messages == [("参加者マスタ", "CSV取込が完了しました。追加: 1件、更新: 1件")]
+    window._confirm_save_changes = lambda: QMessageBox.StandardButton.No
+    window.close()
+
+
+def test_participant_master_window_does_not_change_when_csv_selection_is_cancelled(
+    qt_application,
+):
+    window = ParticipantMasterWindow(
+        settings={"license_id": "LIC-TEST-001", "device_role": "master"},
+        participant_master_service=StubParticipantMasterService(
+            loaded_participants=[_participant()]
+        ),
+        participant_csv_importer=pytest.fail,
+    )
+    window._select_csv_file = lambda: None
+
+    window.csvImportButton.click()
+
+    assert window.participantTable.rowCount() == 1
+    assert window.participantTable.item(0, 1).text() == "Yamada Taro"
+    window.close()
+
+
+def test_participant_master_window_shows_error_when_csv_import_fails(
+    qt_application,
+    tmp_path,
+):
+    errors = []
+    window = ParticipantMasterWindow(
+        settings={"license_id": "LIC-TEST-001", "device_role": "master"},
+        participant_master_service=StubParticipantMasterService(),
+        participant_csv_importer=lambda path: (_ for _ in ()).throw(ValueError()),
+    )
+    window._select_csv_file = lambda: tmp_path / "participants.csv"
+    window._show_error = lambda title, message: errors.append((title, message))
+
+    window.csvImportButton.click()
+
+    assert errors == [("参加者マスタ", "CSV取込に失敗しました。")]
+    assert window.participantTable.rowCount() == 1
     window.close()
 
 
